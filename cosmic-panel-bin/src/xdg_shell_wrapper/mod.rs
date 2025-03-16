@@ -96,7 +96,6 @@ pub fn run(
     // TODO find better place for this
     // let set_clipboard_once = Rc::new(Cell::new(false));
 
-    let mut prev_dur = Duration::from_millis(16);
     loop {
         let iter_start = Instant::now();
 
@@ -106,8 +105,7 @@ pub fn run(
             Duration::from_millis(300)
         } else {
             Duration::from_millis(16)
-        }
-        .max(prev_dur);
+        };
 
         event_loop.dispatch(dur, &mut global_state)?;
 
@@ -142,9 +140,9 @@ pub fn run(
         let new_visibility_hidden = matches!(global_state.space.visibility(), Visibility::Hidden);
 
         if visibility != new_visibility_hidden {
-            prev_dur = Duration::from_millis(16);
             continue;
         }
+
         if let Some(dur) = Instant::now()
             .checked_duration_since(iter_start)
             .and_then(|spent| dur.checked_sub(spent))
@@ -154,8 +152,6 @@ pub fn run(
             } else {
                 16
             })));
-        } else {
-            prev_dur = prev_dur.checked_mul(2).unwrap_or(prev_dur).min(Duration::from_millis(100));
         }
     }
 }
